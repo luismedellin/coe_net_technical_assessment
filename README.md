@@ -25,21 +25,27 @@ Extra design patterns, abstractions, or architectural changes are only beneficia
 
 ## Versions
 
-- .NET 8
-    - Microsoft.EntityFrameworkCore.Sqlite 8.0.4
-    - Serilog.AspNetCore 8.0.1
-- Angular 18.1.0
+- .NET 10
+    - Microsoft.EntityFrameworkCore.Sqlite
+    - Serilog.AspNetCore
+- Angular 21
+- React 19
 
 ## How to Build
 
-- Frontend
+- Frontend (Angular)
 
 ``` 
-pushd code/frontend/ta-web
+pushd code/frontend/angular
 npm install
 npm start
 ```
-
+- Frontend (React)
+``` 
+pushd code/frontend/react
+npm install
+npm start
+```
 - Backend
 
 ``` 
