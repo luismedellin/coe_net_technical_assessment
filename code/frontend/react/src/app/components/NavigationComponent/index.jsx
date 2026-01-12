@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router";
-const unosquarelogo = URL("../../../assets/unosquare.webp", import.meta.url);
+const unosquarelogo = new URL("../../../assets/unosquare.webp", import.meta.url).href;
 export function NavigationComponent() {
     const location = useLocation();
 
