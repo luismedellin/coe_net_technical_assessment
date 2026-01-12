@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using TA_API.Services.Data;
+using TA_API.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 {
