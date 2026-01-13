@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using TA_API.Core.Dtos;
 using TA_API.Core.Services;
 using TA_API.Data;
 using TA_API.Data.Repository;
@@ -27,6 +28,13 @@ var app = builder.Build();
     {
         var order = await service.GetOrderById(id);
         return order is null ? Results.NotFound("Order not found") : Results.Ok(order);
+    });
+
+    app.MapPost("/orders/", async (OrderDto orderDto, IOrderService service) =>
+    {
+        var order = await service.Save(orderDto);
+
+        return Results.Ok(order);
     });
 }
 app.Run();
