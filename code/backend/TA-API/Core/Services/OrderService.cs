@@ -30,6 +30,8 @@ public class OrderService : IOrderService
 
     public async Task<Order> Save(OrderDto orderDto)
     {
+        _logger.LogInformation($"Starting to save order for CustomerId {orderDto.CustomerId} with {orderDto.Items.Count()} items");
+
         // TODO: validate products exist in product catalog
 
         double total = 0d;
@@ -51,9 +53,9 @@ public class OrderService : IOrderService
             Total = total,
             Items = items
         };
-
         await _orderRepository.Save(order);
 
+        _logger.LogInformation($"Order {order.OrderId} saved successfully. Total: {order.Total}");
 
         return order;
     }

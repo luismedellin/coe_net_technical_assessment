@@ -12,6 +12,10 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console());
     builder.Services.AddDbContext<AssessmentDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("AssessmentDB")));
 
+    // Swagger
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+
     // Validators
     builder.Services.AddValidatorsFromAssemblyContaining<OrderDtoValidator>();
 
@@ -25,6 +29,13 @@ var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 {
     app.UseSerilogRequestLogging();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
     app.MapGet("/", () => "Technical Assessment API");
     app.MapGet("/lbhealth", () => "Technical Assessment API");
 
@@ -35,18 +46,28 @@ var app = builder.Build();
         return order is null ? Results.NotFound("Order not found") : Results.Ok(order);
     });
 
-    app.MapPost("/orders/", async (OrderDto orderDto, IValidator<OrderDto> validator, IOrderService service) =>
+    app.MapPost("/orders/", async (OrderDto orderDto,
+        IValidator<OrderDto> validator,
+        IOrderService service,
+        ILogger<Program> logger) =>
     {
-        var validationResult = await validator.ValidateAsync(orderDto);
-
-        if (!validationResult.IsValid)
+        try
         {
-            return Results.ValidationProblem(validationResult.ToDictionary());
+            var validationResult = await validator.ValidateAsync(orderDto);
+            if (!validationResult.IsValid)
+            {
+                logger.LogWarning("Validation failed for CustomerId {CustomerId}", orderDto.CustomerId);
+                return Results.ValidationProblem(validationResult.ToDictionary());
+            }
+
+            var order = await service.Save(orderDto);
+            return Results.Ok(order);
         }
-
-        var order = await service.Save(orderDto);
-
-        return Results.Ok(order);
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Unhandled error saving order for CustomerId {orderDto.CustomerId}");
+            return Results.Problem("An error occurred processing your request");
+        }
     });
 }
 app.Run();
