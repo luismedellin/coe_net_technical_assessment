@@ -1,4 +1,5 @@
 ﻿using TA_API.Core.Dtos;
+using TA_API.Core.Utils;
 using TA_API.Data.Entities;
 using TA_API.Data.Repository;
 
@@ -32,18 +33,19 @@ public class OrderService : IOrderService
     {
         _logger.LogInformation($"Starting to save order for CustomerId {orderDto.CustomerId} with {orderDto.Items.Count()} items");
 
-        // TODO: validate products exist in product catalog
-
         double total = 0d;
         var items = orderDto.Items.Select(i =>
         {
-            total += Convert.ToDouble(i.Quantity * i.Price);
+            var product = DataUtils.Products.FirstOrDefault(p => p.Id == i.Id);
+            var productPrice = product?.Price ?? 0m;
+            // TODO: validate products exist in product catalog
+            total += Convert.ToDouble(i.Quantity * productPrice);
 
             return new Item
             {
-                Name = $"Product {i.Id}",
+                Name = product?.Name ?? string.Empty,
                 Quantity = i.Quantity,
-                Price = i.Price
+                Price = productPrice
             };
         }).ToList();
 

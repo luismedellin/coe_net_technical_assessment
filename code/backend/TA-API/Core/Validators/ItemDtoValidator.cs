@@ -16,11 +16,5 @@ public class ItemDtoValidator : AbstractValidator<ItemDto>
             .WithMessage("Item Quantity must be greater than 0.")
             .LessThanOrEqualTo(100)
             .WithMessage("Item Quantity must be less than or equal to 100.");
-
-        RuleFor(x => x.Price)
-            .GreaterThan(0)
-            .WithMessage("Item Price must be greater than 0.")
-            .LessThanOrEqualTo(10000)
-            .WithMessage("Item Price must be less than or equal to 10,000.");
     }
 }

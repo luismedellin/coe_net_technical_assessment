@@ -9,6 +9,7 @@ export const HomePage = () => {
   const [savedProducts, setSavedProducts] = useState([]);
 
   const searchInput = useRef(null);
+  const customerRef = useRef(null);
   
   useEffect(() => {
     const fechProducts = async () => {
@@ -49,6 +50,41 @@ export const HomePage = () => {
     setSavedProducts(updatedProducts);
   }
 
+  const submitOrder = async () => {
+     
+
+     try {
+      const customerId = customerRef.current.value;
+
+      const orderData = {
+        customerId: Number(customerId),
+        items: savedProducts.map(product => ({
+          Id: product.id,
+          quantity: 1 // TODO: handle quantity
+        }))
+      };
+      debugger;
+     const response = await fetch("https://localhost:7189/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(orderData)
+      });
+
+      if(response.status !== 200) {
+        throw new Error("Failed to submit order");
+      }
+
+      const savedOrder = await response.json();
+
+      alert("Order submitted successfully!", savedOrder.orderId);
+     }
+     catch (error) {
+      alert("Error submitting order:", error);
+     }
+  }
+
   if (products.length === 0) {
     return <div>Loading...</div>;
   }
@@ -75,7 +111,7 @@ export const HomePage = () => {
               <h3>New Order Form</h3>
               <div className="mb-3">
                 <label htmlFor="customerId" className="form-label">Customer ID</label>
-                <input type="text" className="form-control" id="customerId" placeholder="Enter Customer Id" />
+                <input ref={customerRef} type="text" className="form-control" id="customerId" placeholder="Enter Customer Id" />
               </div>
               <div className="mb-3">
                 <label htmlFor="productSearch" className="form-label">Search Products</label>
@@ -104,12 +140,14 @@ export const HomePage = () => {
                   ))}
                 </tbody>
               </table>
+              
             </div>
 
             </div>
 
             { savedProducts.length > 0 && (
-              <div>
+              <>
+              <div className="mb-4">
                 <h2>Summary</h2>
                 <h3>Products in Order</h3>
                 <div>
@@ -125,7 +163,10 @@ export const HomePage = () => {
                   ))}
                 </div>
               </div>
-              
+              <div>
+                <button className="btn btn-success" onClick={submitOrder}>Submit Order</button>
+              </div>
+              </>
             )}
             
             </>
